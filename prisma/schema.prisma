@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  passwordHash   String
+  image          String?
+  bio            String?
+  points         Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  memberships    Membership[]
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  lessonProgress LessonProgress[]
+  ownedGroups    Group[]     @relation("GroupOwner")
+  eventRsvps     EventRsvp[]
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  image       String?
+  privacy     String   @default("public") // public, private
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User         @relation("GroupOwner", fields: [ownerId], references: [id])
+  memberships Membership[]
+  posts       Post[]
+  categories  Category[]
+  courses     Course[]
+  events      Event[]
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  role      String   @default("member") // owner, admin, moderator, member
+  points    Int      @default(0)
+  joinedAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model Category {
+  id      String @id @default(cuid())
+  name    String
+  emoji   String @default("💬")
+  groupId String
+
+  group Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  posts Post[]
+
+  @@unique([name, groupId])
+}
+
+model Post {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  isPinned   Boolean  @default(false)
+  authorId   String
+  groupId    String
+  categoryId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id])
+  comments Comment[]
+  likes    Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  authorId  String
+  postId    String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+}
+
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String?
+  published   Boolean  @default(false)
+  groupId     String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  group   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  modules Module[]
+}
+
+model Module {
+  id       String @id @default(cuid())
+  title    String
+  courseId String
+  order    Int    @default(0)
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+}
+
+model Lesson {
+  id       String @id @default(cuid())
+  title    String
+  content  String
+  videoUrl String?
+  moduleId String
+  order    Int    @default(0)
+
+  module   Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+}
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  startTime   DateTime
+  endTime     DateTime?
+  location    String?
+  isOnline    Boolean  @default(true)
+  meetingUrl  String?
+  groupId     String
+  createdAt   DateTime @default(now())
+
+  group Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  rsvps EventRsvp[]
+}
+
+model EventRsvp {
+  id      String @id @default(cuid())
+  userId  String
+  eventId String
+  status  String @default("going") // going, maybe, not_going
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
