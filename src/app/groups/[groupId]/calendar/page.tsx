@@ -6,11 +6,11 @@ import EventCard from "@/components/calendar/EventCard";
 import CreateEventModal from "@/components/calendar/CreateEventModal";
 
 interface CalendarPageProps {
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
 export default async function CalendarPage({ params }: CalendarPageProps) {
-  const { groupId } = params;
+  const { groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 

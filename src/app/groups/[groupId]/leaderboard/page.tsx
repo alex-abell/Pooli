@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 
 interface LeaderboardPageProps {
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
 export default async function LeaderboardPage({
   params,
 }: LeaderboardPageProps) {
-  const { groupId } = params;
+  const { groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 

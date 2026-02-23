@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
 interface GroupPageProps {
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
-export default function GroupPage({ params }: GroupPageProps) {
-  redirect(`/groups/${params.groupId}/community`);
+export default async function GroupPage({ params }: GroupPageProps) {
+  const { groupId } = await params;
+  redirect(`/groups/${groupId}/community`);
 }

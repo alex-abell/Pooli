@@ -9,14 +9,14 @@ import JoinGroupBar from "@/components/community/JoinGroupBar";
 
 interface GroupLayoutProps {
   children: React.ReactNode;
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
 export default async function GroupLayout({
   children,
   params,
 }: GroupLayoutProps) {
-  const { groupId } = params;
+  const { groupId } = await params;
 
   const group = await prisma.group.findUnique({
     where: { id: groupId },

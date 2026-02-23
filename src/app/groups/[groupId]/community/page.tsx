@@ -7,16 +7,17 @@ import CategoryFilter from "@/components/community/CategoryFilter";
 import { MessageSquare } from "lucide-react";
 
 interface CommunityPageProps {
-  params: { groupId: string };
-  searchParams: { category?: string };
+  params: Promise<{ groupId: string }>;
+  searchParams: Promise<{ category?: string }>;
 }
 
 export default async function CommunityPage({
   params,
   searchParams,
 }: CommunityPageProps) {
-  const { groupId } = params;
-  const activeCategoryId = searchParams.category || null;
+  const { groupId } = await params;
+  const { category } = await searchParams;
+  const activeCategoryId = category || null;
 
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;

@@ -6,11 +6,11 @@ import { GraduationCap, BookOpen, FileText, Plus } from "lucide-react";
 import CreateCourseModal from "@/components/classroom/CreateCourseModal";
 
 interface ClassroomPageProps {
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
 export default async function ClassroomPage({ params }: ClassroomPageProps) {
-  const { groupId } = params;
+  const { groupId } = await params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 

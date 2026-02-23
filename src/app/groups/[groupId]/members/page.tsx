@@ -5,11 +5,11 @@ import { Users } from "lucide-react";
 import MembersSearch from "@/components/members/MembersSearch";
 
 interface MembersPageProps {
-  params: { groupId: string };
+  params: Promise<{ groupId: string }>;
 }
 
 export default async function MembersPage({ params }: MembersPageProps) {
-  const { groupId } = params;
+  const { groupId } = await params;
   const session = await getServerSession(authOptions);
 
   const group = await prisma.group.findUnique({
