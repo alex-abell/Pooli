@@ -13,11 +13,11 @@ export default async function ProfilePage() {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      memberships: {
+      members: {
         include: {
-          group: {
+          pool: {
             include: {
-              _count: { select: { memberships: true } },
+              _count: { select: { members: true } },
             },
           },
         },
@@ -45,7 +45,7 @@ export default async function ProfilePage() {
               <div className="flex items-center gap-6 mt-4">
                 <div className="flex items-center gap-1.5 text-sm text-gray-600">
                   <Users size={16} />
-                  {user.memberships.length} {user.memberships.length === 1 ? "pool" : "pools"}
+                  {user.members.length} {user.members.length === 1 ? "pool" : "pools"}
                 </div>
               </div>
             </div>
@@ -56,22 +56,22 @@ export default async function ProfilePage() {
           Your Pools
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {user.memberships.map((membership) => (
+          {user.members.map((membership) => (
             <Link
               key={membership.id}
-              href={`/pools/${membership.group.id}`}
+              href={`/pools/${membership.pool.id}`}
               className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                  {membership.group.name[0]?.toUpperCase()}
+                  {membership.pool.name[0]?.toUpperCase()}
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900">
-                    {membership.group.name}
+                    {membership.pool.name}
                   </h3>
                   <p className="text-xs text-gray-500">
-                    {membership.group._count.memberships} members
+                    {membership.pool._count.members} members
                   </p>
                 </div>
               </div>

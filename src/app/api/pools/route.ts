@@ -15,16 +15,16 @@ export async function GET() {
 
     const userId = (session.user as { id: string }).id;
 
-    const pools = await prisma.group.findMany({
+    const pools = await prisma.pool.findMany({
       where: {
-        memberships: { some: { userId } },
+        members: { some: { userId } },
       },
       include: {
-        owner: {
+        host: {
           select: { id: true, name: true, image: true },
         },
         _count: {
-          select: { memberships: true },
+          select: { members: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     }
 
     const userId = (session.user as { id: string }).id;
-    const { name, description, image } = await req.json();
+    const { name, description, image, contributionAmount } = await req.json();
 
     if (!name || !description) {
       return NextResponse.json(
@@ -61,20 +61,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const slug = name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "") + "-" + Date.now().toString(36);
-
-    const pool = await prisma.group.create({
+    const pool = await prisma.pool.create({
       data: {
         name,
-        slug,
         description,
         image: image || null,
-        privacy: "private",
-        ownerId: userId,
-        memberships: {
+        contributionAmount: contributionAmount || 0,
+        hostId: userId,
+        members: {
           create: {
             userId,
             role: "owner",
@@ -82,11 +76,11 @@ export async function POST(req: Request) {
         },
       },
       include: {
-        owner: {
+        host: {
           select: { id: true, name: true, image: true },
         },
         _count: {
-          select: { memberships: true },
+          select: { members: true },
         },
       },
     });

@@ -15,8 +15,8 @@ export async function GET(req: Request) {
       );
     }
 
-    const moves = await prisma.event.findMany({
-      where: { groupId: poolId },
+    const moves = await prisma.move.findMany({
+      where: { poolId },
       include: {
         _count: {
           select: { rsvps: true },
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     }
 
     const userId = (session.user as { id: string }).id;
-    const { title, description, startTime, endTime, location, poolId } =
+    const { title, description, startTime, endTime, location, cost, poolId } =
       await req.json();
 
     if (!title || !description || !startTime || !poolId || !location) {
@@ -57,9 +57,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const membership = await prisma.membership.findUnique({
+    const membership = await prisma.member.findUnique({
       where: {
-        userId_groupId: { userId, groupId: poolId },
+        userId_poolId: { userId, poolId },
       },
     });
 
@@ -70,15 +70,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const move = await prisma.event.create({
+    const move = await prisma.move.create({
       data: {
         title,
         description,
         startTime: new Date(startTime),
         endTime: endTime ? new Date(endTime) : null,
         location,
-        isOnline: false,
-        groupId: poolId,
+        cost: cost || 0,
+        poolId,
       },
       include: {
         _count: {

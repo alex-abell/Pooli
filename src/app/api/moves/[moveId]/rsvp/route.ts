@@ -28,7 +28,7 @@ export async function POST(
       );
     }
 
-    const move = await prisma.event.findUnique({
+    const move = await prisma.move.findUnique({
       where: { id: moveId },
     });
 
@@ -39,9 +39,9 @@ export async function POST(
       );
     }
 
-    const membership = await prisma.membership.findUnique({
+    const membership = await prisma.member.findUnique({
       where: {
-        userId_groupId: { userId, groupId: move.groupId },
+        userId_poolId: { userId, poolId: move.poolId },
       },
     });
 
@@ -52,13 +52,13 @@ export async function POST(
       );
     }
 
-    const rsvp = await prisma.eventRsvp.upsert({
+    const rsvp = await prisma.rsvp.upsert({
       where: {
-        userId_eventId: { userId, eventId: moveId },
+        userId_moveId: { userId, moveId },
       },
       create: {
         userId,
-        eventId: moveId,
+        moveId,
         status,
       },
       update: {
@@ -68,7 +68,7 @@ export async function POST(
         user: {
           select: { id: true, name: true, image: true },
         },
-        event: {
+        move: {
           select: { id: true, title: true },
         },
       },

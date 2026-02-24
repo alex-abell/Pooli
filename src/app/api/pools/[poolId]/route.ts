@@ -10,14 +10,14 @@ export async function GET(
   try {
     const { poolId } = params;
 
-    const pool = await prisma.group.findUnique({
+    const pool = await prisma.pool.findUnique({
       where: { id: poolId },
       include: {
-        owner: {
+        host: {
           select: { id: true, name: true, image: true },
         },
         _count: {
-          select: { memberships: true },
+          select: { members: true },
         },
       },
     });
@@ -56,7 +56,7 @@ export async function PATCH(
     const userId = (session.user as { id: string }).id;
     const { poolId } = params;
 
-    const pool = await prisma.group.findUnique({
+    const pool = await prisma.pool.findUnique({
       where: { id: poolId },
     });
 
@@ -67,29 +67,30 @@ export async function PATCH(
       );
     }
 
-    if (pool.ownerId !== userId) {
+    if (pool.hostId !== userId) {
       return NextResponse.json(
         { error: "Only the pool host can update this pool" },
         { status: 403 }
       );
     }
 
-    const { name, description, image } = await req.json();
+    const { name, description, image, contributionAmount } = await req.json();
 
     const updateData: Record<string, unknown> = {};
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (image !== undefined) updateData.image = image;
+    if (contributionAmount !== undefined) updateData.contributionAmount = contributionAmount;
 
-    const updatedPool = await prisma.group.update({
+    const updatedPool = await prisma.pool.update({
       where: { id: poolId },
       data: updateData,
       include: {
-        owner: {
+        host: {
           select: { id: true, name: true, image: true },
         },
         _count: {
-          select: { memberships: true },
+          select: { members: true },
         },
       },
     });

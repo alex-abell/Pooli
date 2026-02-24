@@ -18,11 +18,11 @@ export default async function PoolLayout({
 }: PoolLayoutProps) {
   const { poolId } = await params;
 
-  const pool = await prisma.group.findUnique({
+  const pool = await prisma.pool.findUnique({
     where: { id: poolId },
     include: {
       _count: {
-        select: { memberships: true },
+        select: { members: true },
       },
     },
   });
@@ -36,13 +36,13 @@ export default async function PoolLayout({
 
   let isMember = false;
   if (userId) {
-    const membership = await prisma.membership.findUnique({
+    const member = await prisma.member.findUnique({
       where: {
-        userId_groupId: { userId, groupId: poolId },
+        userId_poolId: { userId, poolId },
       },
       select: { id: true },
     });
-    isMember = !!membership;
+    isMember = !!member;
   }
 
   return (
@@ -54,14 +54,14 @@ export default async function PoolLayout({
           poolId={pool.id}
           poolName={pool.name}
           poolImage={pool.image}
-          memberCount={pool._count.memberships}
+          memberCount={pool._count.members}
         />
 
         <div className="flex-1 flex flex-col min-w-0">
           <PoolMobileNav poolId={pool.id} />
 
           {!isMember && (
-            <JoinPoolBar poolId={pool.id} poolName={pool.name} contributionAmount={0} />
+            <JoinPoolBar poolId={pool.id} poolName={pool.name} contributionAmount={pool.contributionAmount} />
           )}
 
           <main className="flex-1 overflow-y-auto">{children}</main>

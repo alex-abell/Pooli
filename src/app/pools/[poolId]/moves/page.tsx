@@ -14,7 +14,7 @@ export default async function MovesPage({ params }: MovesPageProps) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const pool = await prisma.group.findUnique({
+  const pool = await prisma.pool.findUnique({
     where: { id: poolId },
     select: { id: true, name: true },
   });
@@ -28,16 +28,16 @@ export default async function MovesPage({ params }: MovesPageProps) {
   }
 
   const membership = userId
-    ? await prisma.membership.findUnique({
-        where: { userId_groupId: { userId, groupId: poolId } },
+    ? await prisma.member.findUnique({
+        where: { userId_poolId: { userId, poolId } },
         select: { role: true },
       })
     : null;
 
   const isHost = membership?.role === "owner";
 
-  const events = await prisma.event.findMany({
-    where: { groupId: poolId },
+  const moves = await prisma.move.findMany({
+    where: { poolId },
     include: {
       _count: { select: { rsvps: true } },
       rsvps: userId ? { where: { userId } } : false,
@@ -46,11 +46,11 @@ export default async function MovesPage({ params }: MovesPageProps) {
   });
 
   const now = new Date();
-  const upcomingMoves = events.filter(
-    (e) => new Date(e.startTime) >= now
+  const upcomingMoves = moves.filter(
+    (m) => new Date(m.startTime) >= now
   );
-  const pastMoves = events
-    .filter((e) => new Date(e.startTime) < now)
+  const pastMoves = moves
+    .filter((m) => new Date(m.startTime) < now)
     .reverse();
 
   return (
@@ -70,7 +70,7 @@ export default async function MovesPage({ params }: MovesPageProps) {
         {isHost && <CreateMoveModal poolId={poolId} />}
       </div>
 
-      {events.length === 0 ? (
+      {moves.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <CalendarIcon size={32} className="text-gray-400" />
@@ -92,23 +92,23 @@ export default async function MovesPage({ params }: MovesPageProps) {
                 Upcoming Moves
               </h2>
               <div className="space-y-4">
-                {upcomingMoves.map((event) => (
+                {upcomingMoves.map((move) => (
                   <MoveCard
-                    key={event.id}
+                    key={move.id}
                     move={{
-                      id: event.id,
-                      title: event.title,
-                      description: event.description,
-                      startTime: event.startTime.toISOString(),
-                      endTime: event.endTime?.toISOString() || null,
-                      location: event.location || "TBD",
-                      poolId: event.groupId,
-                      createdAt: event.createdAt.toISOString(),
-                      _count: { rsvps: event._count.rsvps },
+                      id: move.id,
+                      title: move.title,
+                      description: move.description,
+                      startTime: move.startTime.toISOString(),
+                      endTime: move.endTime?.toISOString() || null,
+                      location: move.location,
+                      poolId: move.poolId,
+                      createdAt: move.createdAt.toISOString(),
+                      _count: { rsvps: move._count.rsvps },
                     }}
                     initialRsvpStatus={
-                      Array.isArray(event.rsvps) && event.rsvps.length > 0
-                        ? event.rsvps[0].status
+                      Array.isArray(move.rsvps) && move.rsvps.length > 0
+                        ? move.rsvps[0].status
                         : null
                     }
                     isLoggedIn={!!session}
@@ -124,23 +124,23 @@ export default async function MovesPage({ params }: MovesPageProps) {
                 Past Moves
               </h2>
               <div className="space-y-4">
-                {pastMoves.map((event) => (
+                {pastMoves.map((move) => (
                   <MoveCard
-                    key={event.id}
+                    key={move.id}
                     move={{
-                      id: event.id,
-                      title: event.title,
-                      description: event.description,
-                      startTime: event.startTime.toISOString(),
-                      endTime: event.endTime?.toISOString() || null,
-                      location: event.location || "TBD",
-                      poolId: event.groupId,
-                      createdAt: event.createdAt.toISOString(),
-                      _count: { rsvps: event._count.rsvps },
+                      id: move.id,
+                      title: move.title,
+                      description: move.description,
+                      startTime: move.startTime.toISOString(),
+                      endTime: move.endTime?.toISOString() || null,
+                      location: move.location,
+                      poolId: move.poolId,
+                      createdAt: move.createdAt.toISOString(),
+                      _count: { rsvps: move._count.rsvps },
                     }}
                     initialRsvpStatus={
-                      Array.isArray(event.rsvps) && event.rsvps.length > 0
-                        ? event.rsvps[0].status
+                      Array.isArray(move.rsvps) && move.rsvps.length > 0
+                        ? move.rsvps[0].status
                         : null
                     }
                     isLoggedIn={!!session}

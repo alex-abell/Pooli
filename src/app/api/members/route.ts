@@ -13,7 +13,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const pool = await prisma.group.findUnique({
+    const pool = await prisma.pool.findUnique({
       where: { id: poolId },
     });
 
@@ -24,8 +24,8 @@ export async function GET(req: Request) {
       );
     }
 
-    const members = await prisma.membership.findMany({
-      where: { groupId: poolId },
+    const members = await prisma.member.findMany({
+      where: { poolId },
       include: {
         user: {
           select: {

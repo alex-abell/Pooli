@@ -12,7 +12,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
   const { poolId } = await params;
   const session = await getServerSession(authOptions);
 
-  const pool = await prisma.group.findUnique({
+  const pool = await prisma.pool.findUnique({
     where: { id: poolId },
     select: { id: true, name: true },
   });
@@ -25,8 +25,8 @@ export default async function MembersPage({ params }: MembersPageProps) {
     );
   }
 
-  const memberships = await prisma.membership.findMany({
-    where: { groupId: poolId },
+  const memberships = await prisma.member.findMany({
+    where: { poolId },
     orderBy: { joinedAt: "asc" },
     include: {
       user: {

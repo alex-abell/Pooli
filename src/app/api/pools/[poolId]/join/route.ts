@@ -20,7 +20,7 @@ export async function POST(
     const userId = (session.user as { id: string }).id;
     const { poolId } = params;
 
-    const pool = await prisma.group.findUnique({
+    const pool = await prisma.pool.findUnique({
       where: { id: poolId },
     });
 
@@ -31,36 +31,36 @@ export async function POST(
       );
     }
 
-    const existingMembership = await prisma.membership.findUnique({
+    const existingMember = await prisma.member.findUnique({
       where: {
-        userId_groupId: { userId, groupId: poolId },
+        userId_poolId: { userId, poolId },
       },
     });
 
-    if (existingMembership) {
+    if (existingMember) {
       return NextResponse.json(
         { error: "You are already a member of this pool" },
         { status: 409 }
       );
     }
 
-    const membership = await prisma.membership.create({
+    const member = await prisma.member.create({
       data: {
         userId,
-        groupId: poolId,
+        poolId,
         role: "member",
       },
       include: {
         user: {
           select: { id: true, name: true, image: true },
         },
-        group: {
+        pool: {
           select: { id: true, name: true },
         },
       },
     });
 
-    return NextResponse.json(membership, { status: 201 });
+    return NextResponse.json(member, { status: 201 });
   } catch (error) {
     console.error("Error joining pool:", error);
     return NextResponse.json(
@@ -87,29 +87,29 @@ export async function DELETE(
     const userId = (session.user as { id: string }).id;
     const { poolId } = params;
 
-    const membership = await prisma.membership.findUnique({
+    const member = await prisma.member.findUnique({
       where: {
-        userId_groupId: { userId, groupId: poolId },
+        userId_poolId: { userId, poolId },
       },
     });
 
-    if (!membership) {
+    if (!member) {
       return NextResponse.json(
         { error: "You are not a member of this pool" },
         { status: 404 }
       );
     }
 
-    if (membership.role === "owner") {
+    if (member.role === "owner") {
       return NextResponse.json(
         { error: "The pool host cannot leave the pool" },
         { status: 403 }
       );
     }
 
-    await prisma.membership.delete({
+    await prisma.member.delete({
       where: {
-        userId_groupId: { userId, groupId: poolId },
+        userId_poolId: { userId, poolId },
       },
     });
 

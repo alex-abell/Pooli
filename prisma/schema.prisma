@@ -8,188 +8,140 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  name           String
-  email          String    @unique
-  passwordHash   String
-  image          String?
-  bio            String?
-  points         Int       @default(0)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  image        String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  memberships    Membership[]
-  posts          Post[]
-  comments       Comment[]
-  likes          Like[]
-  lessonProgress LessonProgress[]
-  ownedGroups    Group[]     @relation("GroupOwner")
-  eventRsvps     EventRsvp[]
+  members    Member[]
+  ownedPools Pool[]     @relation("PoolHost")
+  rsvps      Rsvp[]
+  proposals  Proposal[]
 }
 
-model Group {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String
-  image       String?
-  privacy     String   @default("public") // public, private
-  ownerId     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Pool {
+  id                 String   @id @default(cuid())
+  name               String
+  description        String
+  image              String?
+  purpose            String   @default("")
+  contributionAmount Int      @default(0)
+  hostId             String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  owner       User         @relation("GroupOwner", fields: [ownerId], references: [id])
-  memberships Membership[]
-  posts       Post[]
-  categories  Category[]
-  courses     Course[]
-  events      Event[]
+  host          User           @relation("PoolHost", fields: [hostId], references: [id])
+  members       Member[]
+  moves         Move[]
+  proposals     Proposal[]
+  contributions Contribution[]
+  transactions  Transaction[]
 }
 
-model Membership {
-  id        String   @id @default(cuid())
-  userId    String
-  groupId   String
-  role      String   @default("member") // owner, admin, moderator, member
-  points    Int      @default(0)
-  joinedAt  DateTime @default(now())
+model Member {
+  id       String   @id @default(cuid())
+  userId   String
+  poolId   String
+  role     String   @default("member")
+  status   String   @default("active")
+  joinedAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pool          Pool           @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  votes         Vote[]
+  contributions Contribution[]
 
-  @@unique([userId, groupId])
+  @@unique([userId, poolId])
 }
 
-model Category {
-  id      String @id @default(cuid())
-  name    String
-  emoji   String @default("💬")
-  groupId String
-
-  group Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  posts Post[]
-
-  @@unique([name, groupId])
-}
-
-model Post {
-  id         String   @id @default(cuid())
-  title      String
-  content    String
-  isPinned   Boolean  @default(false)
-  authorId   String
-  groupId    String
-  categoryId String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  category Category? @relation(fields: [categoryId], references: [id])
-  comments Comment[]
-  likes    Like[]
-}
-
-model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  authorId  String
-  postId    String
-  parentId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  Comment[] @relation("CommentReplies")
-}
-
-model Like {
-  id     String @id @default(cuid())
-  userId String
-  postId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId])
-}
-
-model Course {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  image       String?
-  published   Boolean  @default(false)
-  groupId     String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  group   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  modules Module[]
-}
-
-model Module {
-  id       String @id @default(cuid())
-  title    String
-  courseId String
-  order    Int    @default(0)
-
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
-}
-
-model Lesson {
-  id       String @id @default(cuid())
-  title    String
-  content  String
-  videoUrl String?
-  moduleId String
-  order    Int    @default(0)
-
-  module   Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress LessonProgress[]
-}
-
-model LessonProgress {
-  id          String   @id @default(cuid())
-  userId      String
-  lessonId    String
-  completed   Boolean  @default(false)
-  completedAt DateTime?
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-}
-
-model Event {
-  id          String   @id @default(cuid())
+model Move {
+  id          String    @id @default(cuid())
   title       String
   description String
   startTime   DateTime
   endTime     DateTime?
-  location    String?
-  isOnline    Boolean  @default(true)
-  meetingUrl  String?
-  groupId     String
-  createdAt   DateTime @default(now())
+  location    String
+  cost        Int       @default(0)
+  status      String    @default("upcoming")
+  poolId      String
+  proposalId  String?
+  createdAt   DateTime  @default(now())
 
-  group Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  rsvps EventRsvp[]
+  pool         Pool          @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  proposal     Proposal?     @relation(fields: [proposalId], references: [id])
+  rsvps        Rsvp[]
+  transactions Transaction[]
 }
 
-model EventRsvp {
-  id      String @id @default(cuid())
-  userId  String
-  eventId String
-  status  String @default("going") // going, maybe, not_going
+model Rsvp {
+  id        String   @id @default(cuid())
+  userId    String
+  moveId    String
+  status    String   @default("in")
+  optedInAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  move Move @relation(fields: [moveId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, eventId])
+  @@unique([userId, moveId])
+}
+
+model Proposal {
+  id            String   @id @default(cuid())
+  poolId        String
+  authorId      String
+  title         String
+  description   String
+  estimatedCost Int      @default(0)
+  status        String   @default("submitted")
+  voteCount     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  pool   Pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  Vote[]
+  moves  Move[]
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  memberId   String
+  value      Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, memberId])
+}
+
+model Contribution {
+  id       String   @id @default(cuid())
+  memberId String
+  poolId   String
+  amount   Int
+  date     DateTime @default(now())
+  status   String   @default("completed")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pool   Pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  poolId      String
+  type        String
+  amount      Int
+  description String
+  moveId      String?
+  createdAt   DateTime @default(now())
+
+  pool Pool  @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  move Move? @relation(fields: [moveId], references: [id], onDelete: Cascade)
 }
