@@ -3,37 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  MessageSquare,
-  GraduationCap,
+  LayoutDashboard,
+  Lightbulb,
   Calendar,
-  Trophy,
+  Wallet,
   Users,
 } from "lucide-react";
 
-interface GroupMobileNavProps {
-  groupId: string;
+interface PoolMobileNavProps {
+  poolId: string;
 }
 
 const tabs = [
-  { name: "Community", icon: MessageSquare, path: "community" },
-  { name: "Classroom", icon: GraduationCap, path: "classroom" },
-  { name: "Calendar", icon: Calendar, path: "calendar" },
-  { name: "Leaderboard", icon: Trophy, path: "leaderboard" },
+  { name: "Home", icon: LayoutDashboard, path: "" },
+  { name: "Proposals", icon: Lightbulb, path: "proposals" },
+  { name: "Moves", icon: Calendar, path: "moves" },
+  { name: "Stash", icon: Wallet, path: "stash" },
   { name: "Members", icon: Users, path: "members" },
 ];
 
-export default function GroupMobileNav({ groupId }: GroupMobileNavProps) {
+export default function PoolMobileNav({ poolId }: PoolMobileNavProps) {
   const pathname = usePathname();
 
   return (
     <div className="lg:hidden border-b border-gray-200 bg-white overflow-x-auto">
       <div className="flex px-4">
         {tabs.map((tab) => {
-          const href = `/groups/${groupId}/${tab.path}`;
-          const isActive = pathname === href;
+          const href = tab.path
+            ? `/pools/${poolId}/${tab.path}`
+            : `/pools/${poolId}`;
+          const isActive = tab.path
+            ? pathname === href
+            : pathname === `/pools/${poolId}`;
           return (
             <Link
-              key={tab.path}
+              key={tab.name}
               href={href}
               className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition ${
                 isActive

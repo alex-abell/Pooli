@@ -5,9 +5,6 @@ import { format } from "date-fns";
 import {
   Search,
   Crown,
-  Shield,
-  Star,
-  Trophy,
   User as UserIcon,
   X,
 } from "lucide-react";
@@ -19,7 +16,6 @@ interface Member {
   image: string | null;
   email: string | null;
   role: string;
-  points: number;
   joinedAt: string;
 }
 
@@ -29,9 +25,7 @@ interface MembersSearchProps {
 
 const roleOrder: Record<string, number> = {
   owner: 0,
-  admin: 1,
-  moderator: 2,
-  member: 3,
+  member: 1,
 };
 
 export default function MembersSearch({ members }: MembersSearchProps) {
@@ -41,12 +35,10 @@ export default function MembersSearch({ members }: MembersSearchProps) {
   const filteredMembers = useMemo(() => {
     let result = members;
 
-    // Filter by role
     if (roleFilter !== "all") {
       result = result.filter((m) => m.role === roleFilter);
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -56,12 +48,10 @@ export default function MembersSearch({ members }: MembersSearchProps) {
       );
     }
 
-    // Sort: owners first, then admins, then moderators, then members; within each role by points desc
     result.sort((a, b) => {
       const roleA = roleOrder[a.role] ?? 99;
       const roleB = roleOrder[b.role] ?? 99;
-      if (roleA !== roleB) return roleA - roleB;
-      return b.points - a.points;
+      return roleA - roleB;
     });
 
     return result;
@@ -73,21 +63,7 @@ export default function MembersSearch({ members }: MembersSearchProps) {
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 text-xs font-medium rounded-full border border-yellow-200">
             <Crown size={10} />
-            Owner
-          </span>
-        );
-      case "admin":
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-            <Shield size={10} />
-            Admin
-          </span>
-        );
-      case "moderator":
-        return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-full border border-purple-200">
-            <Star size={10} />
-            Mod
+            Host
           </span>
         );
       default:
@@ -101,15 +77,12 @@ export default function MembersSearch({ members }: MembersSearchProps) {
 
   const roleOptions = [
     { value: "all", label: "All Roles" },
-    { value: "owner", label: "Owners" },
-    { value: "admin", label: "Admins" },
-    { value: "moderator", label: "Moderators" },
+    { value: "owner", label: "Hosts" },
     { value: "member", label: "Members" },
   ];
 
   return (
     <div>
-      {/* Search and filter bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search
@@ -146,7 +119,6 @@ export default function MembersSearch({ members }: MembersSearchProps) {
         </select>
       </div>
 
-      {/* Results info */}
       {(searchQuery || roleFilter !== "all") && (
         <p className="text-sm text-gray-500 mb-4">
           Showing {filteredMembers.length} of {members.length} members
@@ -159,7 +131,6 @@ export default function MembersSearch({ members }: MembersSearchProps) {
         </p>
       )}
 
-      {/* Members grid */}
       {filteredMembers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-3">
@@ -180,7 +151,6 @@ export default function MembersSearch({ members }: MembersSearchProps) {
               className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-sm transition"
             >
               <div className="flex items-start gap-3 mb-3">
-                {/* Avatar */}
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden shrink-0">
                   {member.image ? (
                     <img
@@ -200,7 +170,6 @@ export default function MembersSearch({ members }: MembersSearchProps) {
                   )}
                 </div>
 
-                {/* Name and role */}
                 <div className="min-w-0 flex-1">
                   <h3 className="font-medium text-gray-900 truncate">
                     {member.name}
@@ -209,14 +178,7 @@ export default function MembersSearch({ members }: MembersSearchProps) {
                 </div>
               </div>
 
-              {/* Points and joined date */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-1">
-                  <Trophy size={12} className="text-yellow-500" />
-                  <span className="font-medium text-gray-700">
-                    {member.points.toLocaleString()} pts
-                  </span>
-                </div>
+              <div className="flex items-center justify-end text-xs text-gray-500 pt-3 border-t border-gray-100">
                 <span>
                   Joined {format(new Date(member.joinedAt), "MMM d, yyyy")}
                 </span>

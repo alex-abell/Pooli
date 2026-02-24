@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import { Search, Plus, LogOut, User, ChevronDown } from "lucide-react";
+import { Plus, LogOut, User, ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -26,28 +26,19 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
             <Link href="/" className="text-xl font-bold text-gray-900">
-              Pooli
+              Pools
             </Link>
-
-            <div className="hidden md:flex relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search communities..."
-                className="pl-10 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:border-gray-300 focus:ring-1 focus:ring-blue-500 outline-none transition w-64"
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-3">
             {session ? (
               <>
                 <Link
-                  href="/groups/create"
+                  href="/pools/create"
                   className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
                 >
                   <Plus size={16} />
-                  <span className="hidden sm:inline">Create Group</span>
+                  <span className="hidden sm:inline">Create Pool</span>
                 </Link>
 
                 <div className="relative" ref={dropdownRef}>

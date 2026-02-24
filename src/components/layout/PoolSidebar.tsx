@@ -3,34 +3,34 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  MessageSquare,
-  GraduationCap,
+  LayoutDashboard,
+  Lightbulb,
   Calendar,
-  Trophy,
+  Wallet,
   Users,
 } from "lucide-react";
 
-interface GroupSidebarProps {
-  groupId: string;
-  groupName: string;
-  groupImage?: string | null;
+interface PoolSidebarProps {
+  poolId: string;
+  poolName: string;
+  poolImage?: string | null;
   memberCount: number;
 }
 
 const tabs = [
-  { name: "Community", icon: MessageSquare, path: "community" },
-  { name: "Classroom", icon: GraduationCap, path: "classroom" },
-  { name: "Calendar", icon: Calendar, path: "calendar" },
-  { name: "Leaderboard", icon: Trophy, path: "leaderboard" },
+  { name: "Home", icon: LayoutDashboard, path: "" },
+  { name: "Proposals", icon: Lightbulb, path: "proposals" },
+  { name: "Moves", icon: Calendar, path: "moves" },
+  { name: "Stash", icon: Wallet, path: "stash" },
   { name: "Members", icon: Users, path: "members" },
 ];
 
-export default function GroupSidebar({
-  groupId,
-  groupName,
-  groupImage,
+export default function PoolSidebar({
+  poolId,
+  poolName,
+  poolImage,
   memberCount,
-}: GroupSidebarProps) {
+}: PoolSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -38,18 +38,18 @@ export default function GroupSidebar({
       <div className="p-4">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold shrink-0">
-            {groupImage ? (
+            {poolImage ? (
               <img
-                src={groupImage}
-                alt={groupName}
+                src={poolImage}
+                alt={poolName}
                 className="w-full h-full rounded-xl object-cover"
               />
             ) : (
-              groupName[0]?.toUpperCase()
+              poolName[0]?.toUpperCase()
             )}
           </div>
           <div className="min-w-0">
-            <h2 className="font-semibold text-gray-900 truncate">{groupName}</h2>
+            <h2 className="font-semibold text-gray-900 truncate">{poolName}</h2>
             <p className="text-xs text-gray-500">
               {memberCount} {memberCount === 1 ? "member" : "members"}
             </p>
@@ -58,11 +58,15 @@ export default function GroupSidebar({
 
         <nav className="space-y-1">
           {tabs.map((tab) => {
-            const href = `/groups/${groupId}/${tab.path}`;
-            const isActive = pathname === href;
+            const href = tab.path
+              ? `/pools/${poolId}/${tab.path}`
+              : `/pools/${poolId}`;
+            const isActive = tab.path
+              ? pathname === href
+              : pathname === `/pools/${poolId}`;
             return (
               <Link
-                key={tab.path}
+                key={tab.name}
                 href={href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
                   isActive

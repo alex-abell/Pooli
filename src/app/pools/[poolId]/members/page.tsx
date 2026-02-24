@@ -5,29 +5,29 @@ import { Users } from "lucide-react";
 import MembersSearch from "@/components/members/MembersSearch";
 
 interface MembersPageProps {
-  params: Promise<{ groupId: string }>;
+  params: Promise<{ poolId: string }>;
 }
 
 export default async function MembersPage({ params }: MembersPageProps) {
-  const { groupId } = await params;
+  const { poolId } = await params;
   const session = await getServerSession(authOptions);
 
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
+  const pool = await prisma.group.findUnique({
+    where: { id: poolId },
     select: { id: true, name: true },
   });
 
-  if (!group) {
+  if (!pool) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <p className="text-gray-500">Group not found.</p>
+        <p className="text-gray-500">Pool not found.</p>
       </div>
     );
   }
 
   const memberships = await prisma.membership.findMany({
-    where: { groupId },
-    orderBy: [{ role: "asc" }, { points: "desc" }],
+    where: { groupId: poolId },
+    orderBy: { joinedAt: "asc" },
     include: {
       user: {
         select: {
@@ -47,7 +47,6 @@ export default async function MembersPage({ params }: MembersPageProps) {
     image: m.user.image,
     email: m.user.email,
     role: m.role,
-    points: m.points,
     joinedAt: m.joinedAt.toISOString(),
   }));
 
@@ -62,7 +61,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
             <h1 className="text-2xl font-bold text-gray-900">Members</h1>
             <p className="text-gray-500 text-sm">
               {memberships.length}{" "}
-              {memberships.length === 1 ? "member" : "members"} in this group
+              {memberships.length === 1 ? "member" : "members"} in this pool
             </p>
           </div>
         </div>

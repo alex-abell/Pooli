@@ -6,47 +6,44 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Video,
   Users,
   Check,
   Loader2,
-  ExternalLink,
+  X,
 } from "lucide-react";
 
-interface EventCardProps {
-  event: {
+interface MoveCardProps {
+  move: {
     id: string;
     title: string;
     description: string;
     startTime: string;
     endTime: string | null;
-    location: string | null;
-    isOnline: boolean;
-    meetingUrl: string | null;
-    groupId: string;
+    location: string;
+    poolId: string;
     createdAt: string;
     _count: {
       rsvps: number;
     };
   };
-  initialRsvpStatus: string | null; // "going", "maybe", "not_going", or null
+  initialRsvpStatus: string | null;
   isLoggedIn: boolean;
 }
 
-export default function EventCard({
-  event,
+export default function MoveCard({
+  move,
   initialRsvpStatus,
   isLoggedIn,
-}: EventCardProps) {
+}: MoveCardProps) {
   const [rsvpStatus, setRsvpStatus] = useState<string | null>(
     initialRsvpStatus
   );
-  const [rsvpCount, setRsvpCount] = useState(event._count.rsvps);
+  const [rsvpCount, setRsvpCount] = useState(move._count.rsvps);
   const [isLoading, setIsLoading] = useState(false);
 
-  const startDate = new Date(event.startTime);
-  const endDate = event.endTime ? new Date(event.endTime) : null;
-  const isEventPast = isPast(endDate || startDate);
+  const startDate = new Date(move.startTime);
+  const endDate = move.endTime ? new Date(move.endTime) : null;
+  const isMovePast = isPast(endDate || startDate);
 
   const handleRsvp = async (status: string) => {
     if (!isLoggedIn || isLoading) return;
@@ -54,7 +51,7 @@ export default function EventCard({
     setIsLoading(true);
 
     try {
-      const res = await fetch(`/api/events/${event.id}/rsvp`, {
+      const res = await fetch(`/api/moves/${move.id}/rsvp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -65,27 +62,26 @@ export default function EventCard({
         throw new Error(data.error || "Failed to RSVP");
       }
 
-      const data = await res.json();
-
       if (status === rsvpStatus) {
-        // Toggle off: if same status clicked, remove RSVP
         setRsvpStatus(null);
-        setRsvpCount((prev) => Math.max(0, prev - 1));
+        if (rsvpStatus === "in") {
+          setRsvpCount((prev) => Math.max(0, prev - 1));
+        }
       } else {
-        // Set new status
-        const wasPreviouslyRsvpd = rsvpStatus === "going";
-        const isNowGoing = status === "going";
+        const wasIn = rsvpStatus === "in";
+        const isNowIn = status === "in";
 
-        if (isNowGoing && !wasPreviouslyRsvpd) {
+        if (isNowIn && !wasIn) {
           setRsvpCount((prev) => prev + 1);
-        } else if (!isNowGoing && wasPreviouslyRsvpd) {
+        } else if (!isNowIn && wasIn) {
           setRsvpCount((prev) => Math.max(0, prev - 1));
         }
 
         setRsvpStatus(status);
       }
-    } catch (err: any) {
-      console.error("RSVP error:", err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "RSVP error";
+      console.error("RSVP error:", message);
     } finally {
       setIsLoading(false);
     }
@@ -94,10 +90,9 @@ export default function EventCard({
   return (
     <div
       className={`bg-white rounded-xl border border-gray-200 overflow-hidden transition hover:shadow-md ${
-        isEventPast ? "opacity-70" : ""
+        isMovePast ? "opacity-70" : ""
       }`}
     >
-      {/* Date stripe at top */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-white">
           <Calendar size={16} />
@@ -105,7 +100,7 @@ export default function EventCard({
             {format(startDate, "EEEE, MMMM d, yyyy")}
           </span>
         </div>
-        {isEventPast && (
+        {isMovePast && (
           <span className="px-2 py-0.5 bg-white/20 rounded text-xs text-white font-medium">
             Past
           </span>
@@ -113,17 +108,14 @@ export default function EventCard({
       </div>
 
       <div className="p-5">
-        {/* Title and description */}
         <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          {event.title}
+          {move.title}
         </h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-4">
-          {event.description}
+          {move.description}
         </p>
 
-        {/* Event details */}
         <div className="space-y-2 mb-4">
-          {/* Time */}
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Clock size={15} className="text-gray-400 shrink-0" />
             <span>
@@ -138,97 +130,52 @@ export default function EventCard({
             </span>
           </div>
 
-          {/* Location */}
-          {event.isOnline ? (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Video size={15} className="text-gray-400 shrink-0" />
-              <span className="inline-flex items-center gap-1.5">
-                <span className="px-2 py-0.5 bg-green-50 text-green-700 text-xs font-medium rounded-full">
-                  Online
-                </span>
-                {event.meetingUrl && (
-                  <a
-                    href={event.meetingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 text-xs flex items-center gap-0.5"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Join Meeting
-                    <ExternalLink size={10} />
-                  </a>
-                )}
-              </span>
-            </div>
-          ) : event.location ? (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <MapPin size={15} className="text-gray-400 shrink-0" />
-              <span>{event.location}</span>
-              <span className="px-2 py-0.5 bg-orange-50 text-orange-700 text-xs font-medium rounded-full">
-                In-Person
-              </span>
-            </div>
-          ) : null}
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <MapPin size={15} className="text-gray-400 shrink-0" />
+            <span>{move.location}</span>
+          </div>
 
-          {/* RSVP count */}
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Users size={15} className="text-gray-400 shrink-0" />
             <span>
-              {rsvpCount} {rsvpCount === 1 ? "person" : "people"} going
+              {rsvpCount} {rsvpCount === 1 ? "person" : "people"} in
             </span>
           </div>
         </div>
 
-        {/* RSVP Buttons */}
-        {isLoggedIn && !isEventPast && (
+        {isLoggedIn && !isMovePast && (
           <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
             <button
-              onClick={() => handleRsvp("going")}
+              onClick={() => handleRsvp("in")}
               disabled={isLoading}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                rsvpStatus === "going"
+                rsvpStatus === "in"
                   ? "bg-green-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700"
               }`}
             >
               {isLoading ? (
                 <Loader2 size={14} className="animate-spin" />
-              ) : rsvpStatus === "going" ? (
+              ) : rsvpStatus === "in" ? (
                 <Check size={14} />
               ) : null}
-              Going
+              I&apos;m In
             </button>
             <button
-              onClick={() => handleRsvp("maybe")}
+              onClick={() => handleRsvp("out")}
               disabled={isLoading}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                rsvpStatus === "maybe"
-                  ? "bg-yellow-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700"
-              }`}
-            >
-              {isLoading ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : rsvpStatus === "maybe" ? (
-                <Check size={14} />
-              ) : null}
-              Maybe
-            </button>
-            <button
-              onClick={() => handleRsvp("not_going")}
-              disabled={isLoading}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                rsvpStatus === "not_going"
+                rsvpStatus === "out"
                   ? "bg-red-500 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-700"
               }`}
             >
               {isLoading ? (
                 <Loader2 size={14} className="animate-spin" />
-              ) : rsvpStatus === "not_going" ? (
-                <Check size={14} />
+              ) : rsvpStatus === "out" ? (
+                <X size={14} />
               ) : null}
-              Can&apos;t Go
+              Out
             </button>
           </div>
         )}

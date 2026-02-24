@@ -4,28 +4,28 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const groupId = searchParams.get("groupId");
+    const poolId = searchParams.get("poolId");
 
-    if (!groupId) {
+    if (!poolId) {
       return NextResponse.json(
-        { error: "groupId query parameter is required" },
+        { error: "poolId query parameter is required" },
         { status: 400 }
       );
     }
 
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
+    const pool = await prisma.group.findUnique({
+      where: { id: poolId },
     });
 
-    if (!group) {
+    if (!pool) {
       return NextResponse.json(
-        { error: "Group not found" },
+        { error: "Pool not found" },
         { status: 404 }
       );
     }
 
     const members = await prisma.membership.findMany({
-      where: { groupId },
+      where: { groupId: poolId },
       include: {
         user: {
           select: {
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
           },
         },
       },
-      orderBy: { points: "desc" },
+      orderBy: { joinedAt: "asc" },
     });
 
     return NextResponse.json(members);

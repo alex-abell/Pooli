@@ -6,17 +6,17 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const groupId = searchParams.get("groupId");
+    const poolId = searchParams.get("poolId");
 
-    if (!groupId) {
+    if (!poolId) {
       return NextResponse.json(
-        { error: "groupId query parameter is required" },
+        { error: "poolId query parameter is required" },
         { status: 400 }
       );
     }
 
-    const events = await prisma.event.findMany({
-      where: { groupId },
+    const moves = await prisma.event.findMany({
+      where: { groupId: poolId },
       include: {
         _count: {
           select: { rsvps: true },
@@ -25,11 +25,11 @@ export async function GET(req: Request) {
       orderBy: { startTime: "asc" },
     });
 
-    return NextResponse.json(events);
+    return NextResponse.json(moves);
   } catch (error) {
-    console.error("Error fetching events:", error);
+    console.error("Error fetching moves:", error);
     return NextResponse.json(
-      { error: "Failed to fetch events" },
+      { error: "Failed to fetch moves" },
       { status: 500 }
     );
   }
@@ -47,39 +47,38 @@ export async function POST(req: Request) {
     }
 
     const userId = (session.user as { id: string }).id;
-    const { title, description, startTime, endTime, location, isOnline, meetingUrl, groupId } =
+    const { title, description, startTime, endTime, location, poolId } =
       await req.json();
 
-    if (!title || !description || !startTime || !groupId) {
+    if (!title || !description || !startTime || !poolId || !location) {
       return NextResponse.json(
-        { error: "Title, description, startTime, and groupId are required" },
+        { error: "Title, description, startTime, location, and poolId are required" },
         { status: 400 }
       );
     }
 
     const membership = await prisma.membership.findUnique({
       where: {
-        userId_groupId: { userId, groupId },
+        userId_groupId: { userId, groupId: poolId },
       },
     });
 
-    if (!membership || (membership.role !== "owner" && membership.role !== "admin")) {
+    if (!membership || membership.role !== "owner") {
       return NextResponse.json(
-        { error: "Only group owners and admins can create events" },
+        { error: "Only the pool host can create moves" },
         { status: 403 }
       );
     }
 
-    const event = await prisma.event.create({
+    const move = await prisma.event.create({
       data: {
         title,
         description,
         startTime: new Date(startTime),
         endTime: endTime ? new Date(endTime) : null,
-        location: location || null,
-        isOnline: isOnline ?? true,
-        meetingUrl: meetingUrl || null,
-        groupId,
+        location,
+        isOnline: false,
+        groupId: poolId,
       },
       include: {
         _count: {
@@ -88,11 +87,11 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(event, { status: 201 });
+    return NextResponse.json(move, { status: 201 });
   } catch (error) {
-    console.error("Error creating event:", error);
+    console.error("Error creating move:", error);
     return NextResponse.json(
-      { error: "Failed to create event" },
+      { error: "Failed to create move" },
       { status: 500 }
     );
   }

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: { groupId: string } }
+  { params }: { params: { poolId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,28 +18,28 @@ export async function POST(
     }
 
     const userId = (session.user as { id: string }).id;
-    const { groupId } = params;
+    const { poolId } = params;
 
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
+    const pool = await prisma.group.findUnique({
+      where: { id: poolId },
     });
 
-    if (!group) {
+    if (!pool) {
       return NextResponse.json(
-        { error: "Group not found" },
+        { error: "Pool not found" },
         { status: 404 }
       );
     }
 
     const existingMembership = await prisma.membership.findUnique({
       where: {
-        userId_groupId: { userId, groupId },
+        userId_groupId: { userId, groupId: poolId },
       },
     });
 
     if (existingMembership) {
       return NextResponse.json(
-        { error: "You are already a member of this group" },
+        { error: "You are already a member of this pool" },
         { status: 409 }
       );
     }
@@ -47,33 +47,24 @@ export async function POST(
     const membership = await prisma.membership.create({
       data: {
         userId,
-        groupId,
+        groupId: poolId,
         role: "member",
-        points: 1,
       },
       include: {
         user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
+          select: { id: true, name: true, image: true },
         },
         group: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
+          select: { id: true, name: true },
         },
       },
     });
 
     return NextResponse.json(membership, { status: 201 });
   } catch (error) {
-    console.error("Error joining group:", error);
+    console.error("Error joining pool:", error);
     return NextResponse.json(
-      { error: "Failed to join group" },
+      { error: "Failed to join pool" },
       { status: 500 }
     );
   }
@@ -81,7 +72,7 @@ export async function POST(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { groupId: string } }
+  { params }: { params: { poolId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -94,39 +85,39 @@ export async function DELETE(
     }
 
     const userId = (session.user as { id: string }).id;
-    const { groupId } = params;
+    const { poolId } = params;
 
     const membership = await prisma.membership.findUnique({
       where: {
-        userId_groupId: { userId, groupId },
+        userId_groupId: { userId, groupId: poolId },
       },
     });
 
     if (!membership) {
       return NextResponse.json(
-        { error: "You are not a member of this group" },
+        { error: "You are not a member of this pool" },
         { status: 404 }
       );
     }
 
     if (membership.role === "owner") {
       return NextResponse.json(
-        { error: "The group owner cannot leave the group" },
+        { error: "The pool host cannot leave the pool" },
         { status: 403 }
       );
     }
 
     await prisma.membership.delete({
       where: {
-        userId_groupId: { userId, groupId },
+        userId_groupId: { userId, groupId: poolId },
       },
     });
 
-    return NextResponse.json({ message: "Successfully left the group" });
+    return NextResponse.json({ message: "Successfully left the pool" });
   } catch (error) {
-    console.error("Error leaving group:", error);
+    console.error("Error leaving pool:", error);
     return NextResponse.json(
-      { error: "Failed to leave group" },
+      { error: "Failed to leave pool" },
       { status: 500 }
     );
   }

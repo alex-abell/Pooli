@@ -5,40 +5,35 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { groupId: string } }
+  { params }: { params: { poolId: string } }
 ) {
   try {
-    const { groupId } = params;
+    const { poolId } = params;
 
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
+    const pool = await prisma.group.findUnique({
+      where: { id: poolId },
       include: {
         owner: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
+          select: { id: true, name: true, image: true },
         },
-        categories: true,
         _count: {
           select: { memberships: true },
         },
       },
     });
 
-    if (!group) {
+    if (!pool) {
       return NextResponse.json(
-        { error: "Group not found" },
+        { error: "Pool not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(group);
+    return NextResponse.json(pool);
   } catch (error) {
-    console.error("Error fetching group:", error);
+    console.error("Error fetching pool:", error);
     return NextResponse.json(
-      { error: "Failed to fetch group" },
+      { error: "Failed to fetch pool" },
       { status: 500 }
     );
   }
@@ -46,7 +41,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { groupId: string } }
+  { params }: { params: { poolId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,51 +54,39 @@ export async function PATCH(
     }
 
     const userId = (session.user as { id: string }).id;
-    const { groupId } = params;
+    const { poolId } = params;
 
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
+    const pool = await prisma.group.findUnique({
+      where: { id: poolId },
     });
 
-    if (!group) {
+    if (!pool) {
       return NextResponse.json(
-        { error: "Group not found" },
+        { error: "Pool not found" },
         { status: 404 }
       );
     }
 
-    if (group.ownerId !== userId) {
+    if (pool.ownerId !== userId) {
       return NextResponse.json(
-        { error: "Only the group owner can update this group" },
+        { error: "Only the pool host can update this pool" },
         { status: 403 }
       );
     }
 
-    const { name, description, image, privacy } = await req.json();
+    const { name, description, image } = await req.json();
 
     const updateData: Record<string, unknown> = {};
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (image !== undefined) updateData.image = image;
-    if (privacy !== undefined) updateData.privacy = privacy;
 
-    if (name) {
-      updateData.slug = name
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
-    }
-
-    const updatedGroup = await prisma.group.update({
-      where: { id: groupId },
+    const updatedPool = await prisma.group.update({
+      where: { id: poolId },
       data: updateData,
       include: {
         owner: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
+          select: { id: true, name: true, image: true },
         },
         _count: {
           select: { memberships: true },
@@ -111,11 +94,11 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(updatedGroup);
+    return NextResponse.json(updatedPool);
   } catch (error) {
-    console.error("Error updating group:", error);
+    console.error("Error updating pool:", error);
     return NextResponse.json(
-      { error: "Failed to update group" },
+      { error: "Failed to update pool" },
       { status: 500 }
     );
   }

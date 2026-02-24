@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
-import { Users, Trophy, MessageSquare } from "lucide-react";
+import { Users } from "lucide-react";
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -20,13 +20,6 @@ export default async function ProfilePage() {
               _count: { select: { memberships: true } },
             },
           },
-        },
-      },
-      _count: {
-        select: {
-          posts: true,
-          comments: true,
-          likes: true,
         },
       },
     },
@@ -51,16 +44,8 @@ export default async function ProfilePage() {
               )}
               <div className="flex items-center gap-6 mt-4">
                 <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                  <Trophy size={16} className="text-yellow-500" />
-                  {user.points} total points
-                </div>
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                  <MessageSquare size={16} />
-                  {user._count.posts} posts
-                </div>
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
                   <Users size={16} />
-                  {user.memberships.length} groups
+                  {user.memberships.length} {user.memberships.length === 1 ? "pool" : "pools"}
                 </div>
               </div>
             </div>
@@ -68,13 +53,13 @@ export default async function ProfilePage() {
         </div>
 
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Your Groups
+          Your Pools
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {user.memberships.map((membership) => (
             <Link
               key={membership.id}
-              href={`/groups/${membership.group.id}/community`}
+              href={`/pools/${membership.group.id}`}
               className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition"
             >
               <div className="flex items-center gap-3 mb-3">
@@ -90,12 +75,9 @@ export default async function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center text-sm">
                 <span className="text-gray-500 capitalize">
-                  {membership.role}
-                </span>
-                <span className="text-yellow-600 font-medium">
-                  {membership.points} pts
+                  {membership.role === "owner" ? "Host" : membership.role}
                 </span>
               </div>
             </Link>

@@ -2,43 +2,42 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Calendar as CalendarIcon } from "lucide-react";
-import EventCard from "@/components/calendar/EventCard";
-import CreateEventModal from "@/components/calendar/CreateEventModal";
+import MoveCard from "@/components/moves/MoveCard";
+import CreateMoveModal from "@/components/moves/CreateMoveModal";
 
-interface CalendarPageProps {
-  params: Promise<{ groupId: string }>;
+interface MovesPageProps {
+  params: Promise<{ poolId: string }>;
 }
 
-export default async function CalendarPage({ params }: CalendarPageProps) {
-  const { groupId } = await params;
+export default async function MovesPage({ params }: MovesPageProps) {
+  const { poolId } = await params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
+  const pool = await prisma.group.findUnique({
+    where: { id: poolId },
     select: { id: true, name: true },
   });
 
-  if (!group) {
+  if (!pool) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <p className="text-gray-500">Group not found.</p>
+        <p className="text-gray-500">Pool not found.</p>
       </div>
     );
   }
 
   const membership = userId
     ? await prisma.membership.findUnique({
-        where: { userId_groupId: { userId, groupId } },
+        where: { userId_groupId: { userId, groupId: poolId } },
         select: { role: true },
       })
     : null;
 
-  const isOwnerOrAdmin =
-    membership?.role === "owner" || membership?.role === "admin";
+  const isHost = membership?.role === "owner";
 
   const events = await prisma.event.findMany({
-    where: { groupId },
+    where: { groupId: poolId },
     include: {
       _count: { select: { rsvps: true } },
       rsvps: userId ? { where: { userId } } : false,
@@ -47,10 +46,10 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
   });
 
   const now = new Date();
-  const upcomingEvents = events.filter(
+  const upcomingMoves = events.filter(
     (e) => new Date(e.startTime) >= now
   );
-  const pastEvents = events
+  const pastMoves = events
     .filter((e) => new Date(e.startTime) < now)
     .reverse();
 
@@ -62,13 +61,13 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
             <CalendarIcon size={20} className="text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Events</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Moves</h1>
             <p className="text-gray-500 text-sm">
-              Upcoming events and gatherings
+              Upcoming activities and gatherings
             </p>
           </div>
         </div>
-        {isOwnerOrAdmin && <CreateEventModal groupId={groupId} />}
+        {isHost && <CreateMoveModal poolId={poolId} />}
       </div>
 
       {events.length === 0 ? (
@@ -77,36 +76,33 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
             <CalendarIcon size={32} className="text-gray-400" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-1">
-            No events yet
+            No moves yet
           </h2>
           <p className="text-gray-500 text-sm max-w-sm">
-            {isOwnerOrAdmin
-              ? "Create your first event to bring the community together."
-              : "Check back later for upcoming community events."}
+            {isHost
+              ? "Create your first move to get the Pool going."
+              : "Check back later for upcoming moves."}
           </p>
         </div>
       ) : (
         <>
-          {/* Upcoming Events */}
-          {upcomingEvents.length > 0 && (
+          {upcomingMoves.length > 0 && (
             <div className="mb-10">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                Upcoming Events
+                Upcoming Moves
               </h2>
               <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <EventCard
+                {upcomingMoves.map((event) => (
+                  <MoveCard
                     key={event.id}
-                    event={{
+                    move={{
                       id: event.id,
                       title: event.title,
                       description: event.description,
                       startTime: event.startTime.toISOString(),
                       endTime: event.endTime?.toISOString() || null,
-                      location: event.location,
-                      isOnline: event.isOnline,
-                      meetingUrl: event.meetingUrl,
-                      groupId: event.groupId,
+                      location: event.location || "TBD",
+                      poolId: event.groupId,
                       createdAt: event.createdAt.toISOString(),
                       _count: { rsvps: event._count.rsvps },
                     }}
@@ -122,26 +118,23 @@ export default async function CalendarPage({ params }: CalendarPageProps) {
             </div>
           )}
 
-          {/* Past Events */}
-          {pastEvents.length > 0 && (
+          {pastMoves.length > 0 && (
             <div>
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                Past Events
+                Past Moves
               </h2>
               <div className="space-y-4">
-                {pastEvents.map((event) => (
-                  <EventCard
+                {pastMoves.map((event) => (
+                  <MoveCard
                     key={event.id}
-                    event={{
+                    move={{
                       id: event.id,
                       title: event.title,
                       description: event.description,
                       startTime: event.startTime.toISOString(),
                       endTime: event.endTime?.toISOString() || null,
-                      location: event.location,
-                      isOnline: event.isOnline,
-                      meetingUrl: event.meetingUrl,
-                      groupId: event.groupId,
+                      location: event.location || "TBD",
+                      poolId: event.groupId,
                       createdAt: event.createdAt.toISOString(),
                       _count: { rsvps: event._count.rsvps },
                     }}

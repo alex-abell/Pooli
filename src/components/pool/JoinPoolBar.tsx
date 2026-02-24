@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { UserPlus, Loader2 } from "lucide-react";
 
-interface JoinGroupBarProps {
-  groupId: string;
-  groupName: string;
+interface JoinPoolBarProps {
+  poolId: string;
+  poolName: string;
+  contributionAmount: number;
 }
 
-export default function JoinGroupBar({ groupId, groupName }: JoinGroupBarProps) {
+export default function JoinPoolBar({ poolId, poolName, contributionAmount }: JoinPoolBarProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [isJoining, setIsJoining] = useState(false);
@@ -26,13 +27,13 @@ export default function JoinGroupBar({ groupId, groupName }: JoinGroupBarProps) 
     setError("");
 
     try {
-      const res = await fetch(`/api/groups/${groupId}/join`, {
+      const res = await fetch(`/api/pools/${poolId}/join`, {
         method: "POST",
       });
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to join group.");
+        setError(data.error || "Failed to join pool.");
         setIsJoining(false);
         return;
       }
@@ -49,9 +50,12 @@ export default function JoinGroupBar({ groupId, groupName }: JoinGroupBarProps) 
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex-1 min-w-0">
           <p className="text-sm text-blue-800">
-            You are not a member of{" "}
-            <span className="font-semibold">{groupName}</span>. Join to post,
-            comment, and participate.
+            Join <span className="font-semibold">{poolName}</span> to participate.
+            {contributionAmount > 0 && (
+              <span className="ml-1 text-blue-600 font-medium">
+                ${contributionAmount}/month contribution
+              </span>
+            )}
           </p>
           {error && (
             <p className="text-xs text-red-600 mt-1">{error}</p>
@@ -70,7 +74,7 @@ export default function JoinGroupBar({ groupId, groupName }: JoinGroupBarProps) 
           ) : (
             <>
               <UserPlus size={16} />
-              Join Group
+              Join this Pool
             </>
           )}
         </button>

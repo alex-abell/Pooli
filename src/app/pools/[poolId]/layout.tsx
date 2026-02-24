@@ -3,23 +3,23 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import GroupSidebar from "@/components/layout/GroupSidebar";
-import GroupMobileNav from "@/components/layout/GroupMobileNav";
-import JoinGroupBar from "@/components/community/JoinGroupBar";
+import PoolSidebar from "@/components/layout/PoolSidebar";
+import PoolMobileNav from "@/components/layout/PoolMobileNav";
+import JoinPoolBar from "@/components/pool/JoinPoolBar";
 
-interface GroupLayoutProps {
+interface PoolLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ groupId: string }>;
+  params: Promise<{ poolId: string }>;
 }
 
-export default async function GroupLayout({
+export default async function PoolLayout({
   children,
   params,
-}: GroupLayoutProps) {
-  const { groupId } = await params;
+}: PoolLayoutProps) {
+  const { poolId } = await params;
 
-  const group = await prisma.group.findUnique({
-    where: { id: groupId },
+  const pool = await prisma.group.findUnique({
+    where: { id: poolId },
     include: {
       _count: {
         select: { memberships: true },
@@ -27,7 +27,7 @@ export default async function GroupLayout({
     },
   });
 
-  if (!group) {
+  if (!pool) {
     notFound();
   }
 
@@ -38,7 +38,7 @@ export default async function GroupLayout({
   if (userId) {
     const membership = await prisma.membership.findUnique({
       where: {
-        userId_groupId: { userId, groupId },
+        userId_groupId: { userId, groupId: poolId },
       },
       select: { id: true },
     });
@@ -50,18 +50,18 @@ export default async function GroupLayout({
       <Navbar />
 
       <div className="flex flex-1 overflow-hidden">
-        <GroupSidebar
-          groupId={group.id}
-          groupName={group.name}
-          groupImage={group.image}
-          memberCount={group._count.memberships}
+        <PoolSidebar
+          poolId={pool.id}
+          poolName={pool.name}
+          poolImage={pool.image}
+          memberCount={pool._count.memberships}
         />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <GroupMobileNav groupId={group.id} />
+          <PoolMobileNav poolId={pool.id} />
 
           {!isMember && (
-            <JoinGroupBar groupId={group.id} groupName={group.name} />
+            <JoinPoolBar poolId={pool.id} poolName={pool.name} contributionAmount={0} />
           )}
 
           <main className="flex-1 overflow-y-auto">{children}</main>

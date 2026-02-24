@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: { eventId: string } }
+  { params }: { params: { moveId: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,47 +18,47 @@ export async function POST(
     }
 
     const userId = (session.user as { id: string }).id;
-    const { eventId } = params;
+    const { moveId } = params;
     const { status } = await req.json();
 
-    if (!status || !["going", "maybe", "not_going"].includes(status)) {
+    if (!status || !["in", "out"].includes(status)) {
       return NextResponse.json(
-        { error: "Status must be one of: going, maybe, not_going" },
+        { error: "Status must be one of: in, out" },
         { status: 400 }
       );
     }
 
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
+    const move = await prisma.event.findUnique({
+      where: { id: moveId },
     });
 
-    if (!event) {
+    if (!move) {
       return NextResponse.json(
-        { error: "Event not found" },
+        { error: "Move not found" },
         { status: 404 }
       );
     }
 
     const membership = await prisma.membership.findUnique({
       where: {
-        userId_groupId: { userId, groupId: event.groupId },
+        userId_groupId: { userId, groupId: move.groupId },
       },
     });
 
     if (!membership) {
       return NextResponse.json(
-        { error: "You must be a member of this group to RSVP" },
+        { error: "You must be a member of this pool to RSVP" },
         { status: 403 }
       );
     }
 
     const rsvp = await prisma.eventRsvp.upsert({
       where: {
-        userId_eventId: { userId, eventId },
+        userId_eventId: { userId, eventId: moveId },
       },
       create: {
         userId,
-        eventId,
+        eventId: moveId,
         status,
       },
       update: {
@@ -66,26 +66,19 @@ export async function POST(
       },
       include: {
         user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
+          select: { id: true, name: true, image: true },
         },
         event: {
-          select: {
-            id: true,
-            title: true,
-          },
+          select: { id: true, title: true },
         },
       },
     });
 
     return NextResponse.json(rsvp);
   } catch (error) {
-    console.error("Error RSVPing to event:", error);
+    console.error("Error RSVPing to move:", error);
     return NextResponse.json(
-      { error: "Failed to RSVP to event" },
+      { error: "Failed to RSVP to move" },
       { status: 500 }
     );
   }

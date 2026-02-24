@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, Loader2, Calendar } from "lucide-react";
 
-interface CreateEventModalProps {
-  groupId: string;
+interface CreateMoveModalProps {
+  poolId: string;
 }
 
-export default function CreateEventModal({ groupId }: CreateEventModalProps) {
+export default function CreateMoveModal({ poolId }: CreateMoveModalProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +19,7 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [location, setLocation] = useState("");
-  const [isOnline, setIsOnline] = useState(true);
-  const [meetingUrl, setMeetingUrl] = useState("");
+  const [cost, setCost] = useState("");
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -30,8 +29,7 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
     setStartTime("");
     setEndTime("");
     setLocation("");
-    setIsOnline(true);
-    setMeetingUrl("");
+    setCost("");
   };
 
   const handleClose = () => {
@@ -56,6 +54,10 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
       setError("Start time is required.");
       return;
     }
+    if (!location.trim()) {
+      setError("Location is required.");
+      return;
+    }
     if (endTime && new Date(endTime) <= new Date(startTime)) {
       setError("End time must be after start time.");
       return;
@@ -64,7 +66,7 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/events", {
+      const res = await fetch("/api/moves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -72,22 +74,22 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
           description: description.trim(),
           startTime: new Date(startTime).toISOString(),
           endTime: endTime ? new Date(endTime).toISOString() : null,
-          location: !isOnline && location.trim() ? location.trim() : null,
-          isOnline,
-          meetingUrl: isOnline && meetingUrl.trim() ? meetingUrl.trim() : null,
-          groupId,
+          location: location.trim(),
+          cost: cost ? parseInt(cost) : 0,
+          poolId,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to create event");
+        throw new Error(data.error || "Failed to create move");
       }
 
       setIsOpen(false);
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +102,7 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
         className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
       >
         <Plus size={18} />
-        Create Event
+        Create Move
       </button>
 
       {isOpen && (
@@ -118,10 +120,10 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Create Event
+                    Create Move
                   </h2>
                   <p className="text-sm text-gray-500">
-                    Schedule a new event for the group
+                    Plan a new activity for the Pool
                   </p>
                 </div>
               </div>
@@ -140,56 +142,53 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
                 </div>
               )}
 
-              {/* Title */}
               <div>
                 <label
-                  htmlFor="event-title"
+                  htmlFor="move-title"
                   className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   Title
                 </label>
                 <input
-                  id="event-title"
+                  id="move-title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Weekly Community Call"
+                  placeholder="e.g. Weekend Cabin Trip"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   maxLength={200}
                   autoFocus
                 />
               </div>
 
-              {/* Description */}
               <div>
                 <label
-                  htmlFor="event-description"
+                  htmlFor="move-description"
                   className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
                   Description
                 </label>
                 <textarea
-                  id="event-description"
+                  id="move-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the event details..."
+                  placeholder="What's the plan? Details, what to bring, etc."
                   rows={3}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
                   maxLength={2000}
                 />
               </div>
 
-              {/* Start and End time */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
-                    htmlFor="event-start"
+                    htmlFor="move-start"
                     className="block text-sm font-medium text-gray-700 mb-1.5"
                   >
                     Start Time
                   </label>
                   <input
-                    id="event-start"
+                    id="move-start"
                     type="datetime-local"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
@@ -199,14 +198,14 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
 
                 <div>
                   <label
-                    htmlFor="event-end"
+                    htmlFor="move-end"
                     className="block text-sm font-medium text-gray-700 mb-1.5"
                   >
                     End Time{" "}
                     <span className="text-gray-400 font-normal">(opt.)</span>
                   </label>
                   <input
-                    id="event-end"
+                    id="move-end"
                     type="datetime-local"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
@@ -216,58 +215,46 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
                 </div>
               </div>
 
-              {/* Online/In-Person toggle */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="move-location"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                >
                   Location
                 </label>
-                <div className="flex gap-3 mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsOnline(true)}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
-                      isOnline
-                        ? "bg-blue-100 text-blue-700 border border-blue-200"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Online
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsOnline(false)}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
-                      !isOnline
-                        ? "bg-blue-100 text-blue-700 border border-blue-200"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    In Person
-                  </button>
-                </div>
-
-                {/* Meeting URL (if online) */}
-                {isOnline ? (
-                  <input
-                    type="url"
-                    value={meetingUrl}
-                    onChange={(e) => setMeetingUrl(e.target.value)}
-                    placeholder="Meeting URL (optional) - e.g. https://zoom.us/j/..."
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Event location - e.g. 123 Main St, City"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    maxLength={300}
-                  />
-                )}
+                <input
+                  id="move-location"
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g. Lake Tahoe Cabin, 123 Pine St"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  maxLength={300}
+                />
               </div>
 
-              {/* Actions */}
+              <div>
+                <label
+                  htmlFor="move-cost"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                >
+                  Estimated Cost{" "}
+                  <span className="text-gray-400 font-normal">(opt.)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                  <input
+                    id="move-cost"
+                    type="number"
+                    min="0"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    placeholder="0"
+                    className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
@@ -283,7 +270,8 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
                     isLoading ||
                     !title.trim() ||
                     !description.trim() ||
-                    !startTime
+                    !startTime ||
+                    !location.trim()
                   }
                   className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
@@ -293,7 +281,7 @@ export default function CreateEventModal({ groupId }: CreateEventModalProps) {
                       Creating...
                     </>
                   ) : (
-                    "Create Event"
+                    "Create Move"
                   )}
                 </button>
               </div>
