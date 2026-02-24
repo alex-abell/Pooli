@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pooli — Make plans without the planning.</title>
+  <meta name="description" content="Pooli is opt-in hangouts across the pools you choose. Raise your hand, match privately, then go do the thing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════ GRAIN OVERLAY ═══════════════════════════ -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner container">
+      <a href="#" class="nav__logo">Pooli</a>
+      <div class="nav__links">
+        <a href="#how">How it works</a>
+        <a href="#pools">Pools</a>
+        <a href="#demo">Demo</a>
+        <a href="#" class="btn btn--sm btn--amber">Join waitlist</a>
+      </div>
+      <button class="nav__burger" id="navBurger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile" id="navMobile">
+      <a href="#how">How it works</a>
+      <a href="#pools">Pools</a>
+      <a href="#demo">Demo</a>
+      <a href="#" class="btn btn--sm btn--amber">Join waitlist</a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════ 1. HERO ═══════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero__inner container">
+      <div class="hero__text">
+        <h1 class="hero__headline reveal">Make plans<br />without the planning.</h1>
+        <p class="hero__sub reveal reveal--d1">
+          Pooli is opt-in hangouts across the pools you choose.<br class="hide-mobile" />
+          Raise your hand, match privately, then go do the thing.
+        </p>
+        <form class="hero__cta reveal reveal--d2" id="heroForm">
+          <div class="input-group">
+            <input type="email" placeholder="you@email.com" required aria-label="Email address" />
+            <button type="submit" class="btn btn--amber">Join the waitlist</button>
+          </div>
+          <p class="hero__success" id="heroSuccess">You're on the list. We'll be in touch.</p>
+        </form>
+        <a href="#how" class="hero__secondary reveal reveal--d3">See how it works &darr;</a>
+        <p class="hero__trust reveal reveal--d3">No always-on tracking. No feed. No noise.</p>
+      </div>
+
+      <div class="hero__phone reveal reveal--d2">
+        <div class="phone-mockup">
+          <div class="phone-mockup__notch"></div>
+          <div class="phone-mockup__screen">
+            <div class="phone-scene active" id="scene0">
+              <div class="phone-scene__tag">Touring &amp; Travel</div>
+              <div class="phone-scene__card">
+                <div class="phone-scene__avatar" style="background:var(--amber);">M</div>
+                <div class="phone-scene__body">
+                  <strong>Marcus</strong>
+                  <span class="phone-scene__time">Tonight</span>
+                  <p>In London tonight. Open to a late dinner.</p>
+                  <span class="phone-scene__loc">Soho &middot; ~0.4 mi</span>
+                </div>
+              </div>
+              <div class="phone-scene__card phone-scene__card--dim">
+                <div class="phone-scene__avatar" style="background:var(--cool);">A</div>
+                <div class="phone-scene__body">
+                  <strong>Aiko</strong>
+                  <span class="phone-scene__time">Tomorrow AM</span>
+                  <p>Coffee before my flight?</p>
+                  <span class="phone-scene__loc">Shoreditch &middot; ~1 mi</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-scene" id="scene1">
+              <div class="phone-scene__tag">Dads &amp; Busy Adults</div>
+              <div class="phone-scene__card">
+                <div class="phone-scene__avatar" style="background:#6BCB77;">D</div>
+                <div class="phone-scene__body">
+                  <strong>Dan</strong>
+                  <span class="phone-scene__time">Saturday</span>
+                  <p>Kids at the zoo Saturday. Anyone want to join?</p>
+                  <span class="phone-scene__loc">Brooklyn &middot; ~2 mi</span>
+                </div>
+              </div>
+              <div class="phone-scene__card phone-scene__card--dim">
+                <div class="phone-scene__avatar" style="background:#FF6B6B;">S</div>
+                <div class="phone-scene__body">
+                  <strong>Sara</strong>
+                  <span class="phone-scene__time">Sunday</span>
+                  <p>Park playdate — toddler crew?</p>
+                  <span class="phone-scene__loc">Park Slope &middot; ~1.5 mi</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-scene" id="scene2">
+              <div class="phone-scene__tag">New In Town</div>
+              <div class="phone-scene__card">
+                <div class="phone-scene__avatar" style="background:#C084FC;">J</div>
+                <div class="phone-scene__body">
+                  <strong>Jamie</strong>
+                  <span class="phone-scene__time">This afternoon</span>
+                  <p>Coffee + walk. Want company?</p>
+                  <span class="phone-scene__loc">East Village &middot; ~0.8 mi</span>
+                </div>
+              </div>
+              <div class="phone-scene__card phone-scene__card--dim">
+                <div class="phone-scene__avatar" style="background:var(--amber);">R</div>
+                <div class="phone-scene__body">
+                  <strong>Riya</strong>
+                  <span class="phone-scene__time">Friday eve</span>
+                  <p>New here — anyone for live music tonight?</p>
+                  <span class="phone-scene__loc">Williamsburg &middot; ~3 mi</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-mockup__dots">
+            <span class="dot active" data-scene="0"></span>
+            <span class="dot" data-scene="1"></span>
+            <span class="dot" data-scene="2"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 2. HOW IT WORKS ═══════════════════════════ -->
+  <section class="how" id="how">
+    <div class="container">
+      <h2 class="section-label reveal">How it works</h2>
+      <div class="how__grid">
+        <div class="how__step reveal">
+          <div class="how__num">01</div>
+          <h3>Join pools that fit your life</h3>
+          <p>Friends, dads, touring musicians, pilates crew — pick the worlds you belong to.</p>
+        </div>
+        <div class="how__step reveal reveal--d1">
+          <div class="how__num">02</div>
+          <h3>Raise your hand when you're down</h3>
+          <p>Say what, when, and roughly where. Your hand is only visible to people in that pool.</p>
+        </div>
+        <div class="how__step reveal reveal--d2">
+          <div class="how__num">03</div>
+          <h3>Match &rarr; details unlock &rarr; go</h3>
+          <p>When someone joins, exact details appear. No back-and-forth. Just plans that happen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 3. POOLS YOU CHOOSE ═══════════════════════════ -->
+  <section class="pools" id="pools">
+    <div class="container">
+      <h2 class="section-label reveal">Pools you choose</h2>
+      <p class="pools__headline reveal reveal--d1">One app. Many worlds.<br />You choose what overlaps.</p>
+      <div class="pools__diagram reveal reveal--d2">
+        <div class="pool-chip pool-chip--a">Friends</div>
+        <div class="pool-chip pool-chip--b">Touring Musicians</div>
+        <div class="pool-chip pool-chip--c">Dads</div>
+        <div class="pool-chip pool-chip--d">New In City</div>
+        <div class="pool-chip pool-chip--e">Live Music</div>
+        <div class="pool-chip pool-chip--f">Pilates</div>
+        <div class="pool-chip pool-chip--g">Foodies</div>
+        <div class="pool-chip pool-chip--h">Pickup Basketball</div>
+        <svg class="pools__lines" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
+          <line x1="150" y1="60" x2="300" y2="140" />
+          <line x1="450" y1="60" x2="300" y2="140" />
+          <line x1="150" y1="60" x2="450" y2="60" />
+          <line x1="300" y1="140" x2="150" y2="240" />
+          <line x1="300" y1="140" x2="450" y2="240" />
+          <line x1="150" y1="240" x2="450" y2="240" />
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 4. USE CASES ═══════════════════════════ -->
+  <section class="cases" id="cases">
+    <div class="container">
+      <h2 class="section-label reveal">Real moments, real people</h2>
+      <div class="cases__grid">
+        <div class="case-card reveal">
+          <div class="case-card__tag">Touring &amp; Travel</div>
+          <div class="case-card__hand">
+            <div class="case-card__avatar" style="background:var(--amber);">M</div>
+            <div class="case-card__content">
+              <strong>Marcus</strong>
+              <p>"In London tonight. Open to a late dinner."</p>
+              <div class="case-card__meta">
+                <span>Tonight &middot; Soho &middot; ~0.4 mi</span>
+              </div>
+            </div>
+          </div>
+          <div class="case-card__action">
+            <button class="btn btn--outline btn--sm">Raise your hand</button>
+          </div>
+        </div>
+
+        <div class="case-card reveal reveal--d1">
+          <div class="case-card__tag">Dads &amp; Busy Adults</div>
+          <div class="case-card__hand">
+            <div class="case-card__avatar" style="background:#6BCB77;">D</div>
+            <div class="case-card__content">
+              <strong>Dan</strong>
+              <p>"Kids at the zoo Saturday. Anyone want to join?"</p>
+              <div class="case-card__meta">
+                <span>Saturday &middot; Brooklyn &middot; ~2 mi</span>
+              </div>
+            </div>
+          </div>
+          <div class="case-card__action">
+            <button class="btn btn--outline btn--sm">Raise your hand</button>
+          </div>
+        </div>
+
+        <div class="case-card reveal reveal--d2">
+          <div class="case-card__tag">New In Town</div>
+          <div class="case-card__hand">
+            <div class="case-card__avatar" style="background:#C084FC;">J</div>
+            <div class="case-card__content">
+              <strong>Jamie</strong>
+              <p>"Coffee + walk. Want company?"</p>
+              <div class="case-card__meta">
+                <span>This afternoon &middot; East Village &middot; ~0.8 mi</span>
+              </div>
+            </div>
+          </div>
+          <div class="case-card__action">
+            <button class="btn btn--outline btn--sm">Raise your hand</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 5. PRIVACY ═══════════════════════════ -->
+  <section class="privacy" id="privacy">
+    <div class="container">
+      <h2 class="section-label reveal">Privacy &amp; safety</h2>
+      <p class="privacy__headline reveal reveal--d1">Visible only when you want to be.</p>
+      <div class="privacy__grid reveal reveal--d2">
+        <div class="privacy__item">
+          <div class="privacy__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <strong>Opt-in only</strong>
+            <p>You're invisible until you raise your hand. Period.</p>
+          </div>
+        </div>
+        <div class="privacy__item">
+          <div class="privacy__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <strong>Approximate location until match</strong>
+            <p>Others see your neighborhood, not your address — until you both commit.</p>
+          </div>
+        </div>
+        <div class="privacy__item">
+          <div class="privacy__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div>
+            <strong>Match unlocks details</strong>
+            <p>Exact time, place, and contact only appear when both sides agree.</p>
+          </div>
+        </div>
+        <div class="privacy__item">
+          <div class="privacy__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18.36 6.64A9 9 0 015.64 18.36M5.64 5.64A9 9 0 0118.36 18.36"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+          </div>
+          <div>
+            <strong>Timeboxed sharing expires</strong>
+            <p>Your hand automatically lowers. Nothing lingers.</p>
+          </div>
+        </div>
+        <div class="privacy__item">
+          <div class="privacy__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+          <div>
+            <strong>Ghost mode + block</strong>
+            <p>Disappear from anyone, anytime. No questions, no trace.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 6. INTERACTIVE DEMO ═══════════════════════════ -->
+  <section class="demo" id="demo">
+    <div class="container">
+      <h2 class="section-label reveal">Try the demo</h2>
+      <p class="demo__sub reveal reveal--d1">Experience Pooli in 30 seconds. Pick a pool, raise your hand, and see what happens.</p>
+
+      <div class="demo__app reveal reveal--d2">
+        <!-- Pool selector -->
+        <div class="demo__pools" id="demoPools">
+          <button class="demo__chip active" data-pool="friends">Friends</button>
+          <button class="demo__chip" data-pool="touring">Touring Musicians</button>
+          <button class="demo__chip" data-pool="dads">Dads</button>
+          <button class="demo__chip" data-pool="new-in-city">New In City</button>
+          <button class="demo__chip" data-pool="live-music">Live Music</button>
+          <button class="demo__chip" data-pool="pilates">Pilates</button>
+        </div>
+
+        <!-- Demo content area -->
+        <div class="demo__content">
+          <!-- User's hand status -->
+          <div class="demo__status" id="demoStatus">
+            <p class="demo__status-text">You haven't raised your hand yet.</p>
+            <button class="btn btn--amber" id="demoRaiseBtn">Raise your hand</button>
+          </div>
+
+          <!-- User's raised hand card (hidden initially) -->
+          <div class="demo__user-card hidden" id="demoUserCard">
+            <div class="demo__card-header">
+              <span class="demo__card-badge">Your hand is up</span>
+              <button class="demo__card-lower" id="demoLowerBtn">Lower hand</button>
+            </div>
+            <div class="demo__card-body">
+              <div class="demo__card-avatar" style="background:var(--amber);">Y</div>
+              <div class="demo__card-info">
+                <strong>You</strong>
+                <p id="demoUserWhat"></p>
+                <span class="demo__card-meta" id="demoUserMeta"></span>
+              </div>
+            </div>
+            <div class="demo__card-expiry">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span id="demoExpiry">Expires in 4 hours</span>
+            </div>
+          </div>
+
+          <!-- Feed of seeded people -->
+          <div class="demo__feed" id="demoFeed">
+            <h4 class="demo__feed-title">People with hands up in <span id="demoPoolName">Friends</span></h4>
+
+            <div class="demo__person" data-person="alex" data-state="visible">
+              <div class="demo__person-avatar" style="background:#FF6B6B;">A</div>
+              <div class="demo__person-info">
+                <strong>Alex</strong>
+                <p class="demo__person-what">Grabbing tacos near the park. Down to join?</p>
+                <span class="demo__person-meta">
+                  <span class="demo__person-when">Tonight, ~7pm</span>
+                  <span class="demo__person-loc demo__person-loc--approx">East Side &middot; ~1.2 mi</span>
+                  <span class="demo__person-loc demo__person-loc--exact hidden">Taqueria El Sol, 412 E 9th St &middot; 0.3 mi</span>
+                </span>
+              </div>
+              <div class="demo__person-actions">
+                <button class="btn btn--outline btn--sm demo__join-btn">Request to join</button>
+                <button class="btn btn--amber btn--sm demo__match-btn hidden">Match!</button>
+                <span class="demo__person-state hidden"></span>
+              </div>
+            </div>
+
+            <div class="demo__person" data-person="kai" data-state="visible">
+              <div class="demo__person-avatar" style="background:#6BCB77;">K</div>
+              <div class="demo__person-info">
+                <strong>Kai</strong>
+                <p class="demo__person-what">Working from a cafe. Company welcome.</p>
+                <span class="demo__person-meta">
+                  <span class="demo__person-when">Now &ndash; 3pm</span>
+                  <span class="demo__person-loc demo__person-loc--approx">Midtown &middot; ~0.8 mi</span>
+                  <span class="demo__person-loc demo__person-loc--exact hidden">Blue Bottle, 54 W 40th St &middot; 0.2 mi</span>
+                </span>
+              </div>
+              <div class="demo__person-actions">
+                <button class="btn btn--outline btn--sm demo__join-btn">Request to join</button>
+                <button class="btn btn--amber btn--sm demo__match-btn hidden">Match!</button>
+                <span class="demo__person-state hidden"></span>
+              </div>
+            </div>
+
+            <div class="demo__person" data-person="nina" data-state="visible">
+              <div class="demo__person-avatar" style="background:#C084FC;">N</div>
+              <div class="demo__person-info">
+                <strong>Nina</strong>
+                <p class="demo__person-what">Live jazz at 9. Extra ticket. Anyone?</p>
+                <span class="demo__person-meta">
+                  <span class="demo__person-when">Tonight, 9pm</span>
+                  <span class="demo__person-loc demo__person-loc--approx">Downtown &middot; ~2 mi</span>
+                  <span class="demo__person-loc demo__person-loc--exact hidden">Village Vanguard, 178 7th Ave S &middot; 1.8 mi</span>
+                </span>
+              </div>
+              <div class="demo__person-actions">
+                <button class="btn btn--outline btn--sm demo__join-btn">Request to join</button>
+                <button class="btn btn--amber btn--sm demo__match-btn hidden">Match!</button>
+                <span class="demo__person-state hidden"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ RAISE HAND MODAL ═══════════════════════════ -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" id="raiseModal">
+      <div class="modal__header">
+        <h3>Raise your hand</h3>
+        <button class="modal__close" id="modalClose">&times;</button>
+      </div>
+      <form class="modal__form" id="raiseForm">
+        <label>
+          <span>What are you up for?</span>
+          <input type="text" id="raiseWhat" placeholder="e.g. Tacos and a walk" required />
+        </label>
+        <label>
+          <span>When?</span>
+          <input type="text" id="raiseWhen" placeholder="e.g. Tonight around 7" required />
+        </label>
+        <label>
+          <span>General area</span>
+          <input type="text" id="raiseWhere" placeholder="e.g. East Village" required />
+        </label>
+        <label>
+          <span>Visibility</span>
+          <div class="modal__radios">
+            <label class="modal__radio">
+              <input type="radio" name="visibility" value="friends" checked />
+              <span>Friends only</span>
+            </label>
+            <label class="modal__radio">
+              <input type="radio" name="visibility" value="pool" />
+              <span>Selected pool</span>
+            </label>
+            <label class="modal__radio">
+              <input type="radio" name="visibility" value="fof" />
+              <span>Friends-of-friends</span>
+            </label>
+          </div>
+        </label>
+        <button type="submit" class="btn btn--amber btn--full">Raise hand</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ MATCH MODAL ═══════════════════════════ -->
+  <div class="modal-overlay hidden" id="matchModalOverlay">
+    <div class="modal modal--match" id="matchModal">
+      <div class="modal__header">
+        <h3>It's a match!</h3>
+        <button class="modal__close" id="matchModalClose">&times;</button>
+      </div>
+      <div class="modal__match-body">
+        <div class="modal__match-avatars">
+          <div class="demo__card-avatar" style="background:var(--amber);">Y</div>
+          <div class="modal__match-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="24" height="24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <div class="demo__card-avatar" id="matchAvatar">A</div>
+        </div>
+        <p class="modal__match-detail" id="matchDetail"></p>
+        <p class="modal__match-unlock">Details unlocked &darr;</p>
+        <div class="modal__match-info" id="matchInfo"></div>
+        <button class="btn btn--amber btn--full" id="matchDoneBtn">Nice. Let's go.</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 7. SOCIAL PROOF ═══════════════════════════ -->
+  <section class="proof" id="proof">
+    <div class="container">
+      <h2 class="section-label reveal">What people are saying</h2>
+      <div class="proof__grid">
+        <blockquote class="proof__quote reveal">
+          <p>"I moved to Austin knowing nobody. Pooli had me at a backyard BBQ within 48 hours. No awkward apps. Just people."</p>
+          <cite>&mdash; Taylor M., Austin</cite>
+        </blockquote>
+        <blockquote class="proof__quote reveal reveal--d1">
+          <p>"As a touring musician, I'm in a different city every night. Pooli is the only app where I can find genuine dinner company in 20 minutes."</p>
+          <cite>&mdash; Jordan K., on tour</cite>
+        </blockquote>
+        <blockquote class="proof__quote reveal reveal--d2">
+          <p>"Saturday dad duty used to be solo. Now my kids have friends at the park and so do I. No group chat required."</p>
+          <cite>&mdash; Chris L., Brooklyn</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ 8. FINAL CTA ═══════════════════════════ -->
+  <section class="final-cta" id="final-cta">
+    <div class="container">
+      <h2 class="final-cta__headline reveal">Stop scrolling.<br />Start showing up.</h2>
+      <p class="final-cta__sub reveal reveal--d1">Pooli launches soon. Get early access.</p>
+      <form class="hero__cta reveal reveal--d2" id="footerForm">
+        <div class="input-group">
+          <input type="email" placeholder="you@email.com" required aria-label="Email address" />
+          <button type="submit" class="btn btn--amber">Join the waitlist</button>
+        </div>
+        <p class="hero__success" id="footerSuccess">You're on the list. We'll be in touch.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span class="footer__logo">Pooli</span>
+      <span class="footer__copy">&copy; 2026 Pooli. All rights reserved.</span>
+      <div class="footer__links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
